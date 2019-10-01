@@ -24,7 +24,7 @@ Private Function Permutate(ByVal sBegin As String, Optional ByVal sEnd As String
     Dim lenEnd As Long
 
     lenEnd = Len(sBegin)
-    
+
     If IsMissing(arrPerms) Then
         Dim cPerm As Long
         cPerm = 1
@@ -52,7 +52,7 @@ End Function
 '@TestMethod("Output Validation")
 Public Sub Single_Cell_Formula()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim formrColrRow As String '  A2
     Dim formrColaRow As String '  A$2
@@ -79,15 +79,15 @@ End Sub
 '@TestMethod("Output Validation")
 Public Sub WS_WB_Names()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim nameWB As String
     Dim nameWS As String
 
     Dim formWS As String
     Dim formWBWS As String
-    nameWB = Test_SS.Workbook.name
-    nameWS = Test_SS.Worksheet.name
+    nameWB = Test_SS.Workbook.Name
+    nameWS = Replace(Test_SS.Worksheet.Name, "'", "''")
 
     'Act:
     formWS = BuildFormula("=%sCr", Test_SS("TestCol"), 2)
@@ -105,7 +105,7 @@ End Sub
 '@TestMethod("Output Validation")
 Public Sub Certain_Orders_Irrelevant()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim nameWB As String
     Dim nameWS As String
@@ -116,11 +116,11 @@ Public Sub Certain_Orders_Irrelevant()
     Dim argArray As Variant
 
     ' Permutation results of C, R, S, B
-    nameWB = Test_SS.Workbook.name
-    nameWS = Test_SS.Worksheet.name
+    nameWB = Test_SS.Workbook.Name
+    nameWS = Test_SS.Worksheet.Name
     permResCell = "=A2"
-    permResWS = "='" & nameWS & "'!A2"
-    permResWBWS = "='[" & nameWB & "]" & nameWS & "'!A2"
+    permResWS = "='" & Replace(nameWS, "'", "''") & "'!A2"
+    permResWBWS = "='[" & nameWB & "]" & Replace(nameWS, "'", "''") & "'!A2"
 
     'Act/Assert:
 
@@ -142,7 +142,7 @@ Public Sub Certain_Orders_Irrelevant()
         End If
         Assert.AreEqual permResWS, BuildFormulaFromArray("=%" & sPerm, argArray), "Worksheet reference flags irrelevant ordering broken."
     Next sPerm
-    
+
     For Each sPerm In Permutate("bscr")
         If InStr(sPerm, "r") > InStr(sPerm, "c") Then
             argArray = Array(Test_SS("TestCol"), 2)
@@ -160,7 +160,7 @@ End Sub
 '@TestMethod("Output Validation")
 Public Sub Reference_Escaping()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim sescC As String, sescR As String, sescL As String
     Dim sescS As String, sescB As String
@@ -192,15 +192,15 @@ End Sub
 '@TestMethod("Output Validation")
 Public Sub Half_References()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim colAbsRef As String, rowAbsRef As String
     Dim colRelRef As String, rowRelRef As String
     Dim colWSRef As String, rowWSRef As String
     Dim colWBRef As String, rowWBRef As String
     Dim nameWB As String, nameWS As String
-    nameWB = Test_SS.Workbook.name
-    nameWS = Test_SS.Worksheet.name
+    nameWB = Test_SS.Workbook.Name
+    nameWS = Replace(Test_SS.Worksheet.Name, "'", "''")
 
     'Act:
     colAbsRef = BuildFormula("=%C", Test_SS("TestCol"))
@@ -245,7 +245,7 @@ End Function
 '@TestMethod("Input Validation")
 Public Sub Bad_FmtStr_Input()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim ExpectedError As Long
     Dim arrArgs As Variant
@@ -270,13 +270,13 @@ Public Sub Bad_FmtStr_Input()
 TestFail:
     If Err.Number = ExpectedError Then _
         Resume Next
-    Err.Clear
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
 End Sub
 
 '@TestMethod("Input Validation")
 Public Sub Bad_Array_Input()
     On Error GoTo TestFail
-    
+
     'Arrange:
     Dim ExpectedError As Long
 
@@ -297,6 +297,6 @@ Public Sub Bad_Array_Input()
 TestFail:
     If Err.Number = ExpectedError Then _
         Resume Next
-    Err.Clear
+    Assert.Fail "Test raised an error: #" & Err.Number & " - " & Err.Description
 End Sub
 

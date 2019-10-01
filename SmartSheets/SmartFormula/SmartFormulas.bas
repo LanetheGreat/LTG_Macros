@@ -3,7 +3,7 @@ Option Explicit
 
 '@Folder("SmartSheets.SmartFormulas")
 
-Enum ERROR_BF
+Public Enum ERROR_BF
     [_start] = vbObjectError + 512
     BFE_HandleRef
     BFE_BadChar
@@ -166,14 +166,14 @@ BFFA_Reparse:
             Err.Raise ERROR_BF.BFE_HandleRef
         End If
     Next
-    
+
     If fInRef Then
         sindexOut = sindexFormat - 1 ' Output our reference a position back since we may have already parsed a valid character.
         If fInLast Then _
             Err.Raise ERROR_BF.BFE_MissFlag, Src, "Flag missing after L flag."
         Err.Raise ERROR_BF.BFE_HandleRef
     End If
-    
+
     BuildFormulaFromArray = Join$(soutFormParts, vbNullString)
     Exit Function
 
@@ -220,9 +220,9 @@ BFFA_RefHandler:
             End If
             If IsEmpty(lRow) Then Err.Raise ERROR_BF.BFE_BadRow, Src, "Can't use last row, because no row number was given prior."
             If lRow < 1 Then Err.Raise ERROR_BF.BFE_BadRow, Src, "Bad row number specified. Row: """ & lRow & """"
-            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lColumn.rowName((lRow), fAbsCol, fAbsRow, fIncWS, fIncWB)
+            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lColumn.RowAddress((lRow), fAbsCol, fAbsRow, fIncWS, fIncWB)
         Else
-            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lColumn.colName(fAbsCol, fIncWS, fIncWB)
+            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lColumn.ColumnAddress(fAbsCol, fIncWS, fIncWB)
         End If
     ElseIf fIncRow Then
         If Not fUseLRow Then
@@ -246,7 +246,7 @@ BFFA_RefHandler:
         If IsEmpty(lRow) Then Err.Raise ERROR_BF.BFE_BadRow, Src, "Can't use last row, because no row number was given prior."
         If lRow < 1 Then Err.Raise ERROR_BF.BFE_BadRow, Src, "Bad row number specified. Row: """ & lRow & """"
         If fIncWS Or fIncWB Then
-            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lSS.rowName((lRow), fAbsRow, fIncWS, fIncWB)
+            soutFormParts(sindexOut) = soutFormParts(sindexOut) & lSS.RowName((lRow), fAbsRow, fIncWS, fIncWB)
         ElseIf fAbsRow Then
             soutFormParts(sindexOut) = soutFormParts(sindexOut) & "$" & lRow & ":$" & lRow
         Else
@@ -255,7 +255,7 @@ BFFA_RefHandler:
     Else
         Err.Raise ERROR_BF.BFE_MissFlag, Src, "Missing both column and row flags."
     End If
-    
+
     ' Reset our flags now that our reference is output.
     fHasRefCh = False
     fInRef = False
