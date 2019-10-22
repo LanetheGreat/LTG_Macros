@@ -126,6 +126,12 @@ Private Function ExternalRef(ByRef IncludeWS As Boolean, ByVal IncludeWB As Bool
 
 End Function
 
+Private Function privLastRow() As Long
+    With ParentSheet.UsedRange.Rows
+        privLastRow = .Row + .Count - 1
+    End With
+End Function
+
 
 ' Properties supported by the SS_Column Class
 
@@ -380,7 +386,7 @@ Public Function Range(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow
     CheckRow StartRow, "Range"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.Rows.Count
+        EndRow = privLastRow()
     CheckRow EndRow, "Range"
 
     Set Range = ParentSheet.Range(ColumnName & StartRow & ":" & ColumnName & EndRow)
@@ -394,7 +400,7 @@ Public Sub ClearContents(Optional ByVal StartRow As Long = 2, Optional ByVal End
     CheckRow StartRow, "ClearContents"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.Rows.Count
+        EndRow = privLastRow()
     CheckRow EndRow, "ClearContents"
 
     With ParentSheet
@@ -410,7 +416,7 @@ Public Sub FillDown(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow A
     CheckRow StartRow, "FillDown"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.Rows.Count
+        EndRow = privLastRow()
     CheckRow EndRow, "FillDown"
 
     With ParentSheet
@@ -425,12 +431,22 @@ Public Sub FillUp(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow As 
     CheckRow StartRow, "FillUp"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.Rows.Count
+        EndRow = privLastRow()
     CheckRow EndRow, "FillUp"
 
     With ParentSheet
         .Range(.Cells(StartRow, ColumnNumber), .Cells(EndRow, ColumnNumber)).FillUp
     End With
+
+End Sub
+
+'TODO: Add Unit Tests for .Delete subroutine.
+Public Sub Delete()
+
+    CheckInit "Delete"
+
+    ParentSheet.Columns(ColumnNumber).Delete
+    Set ParentSheet = Nothing
 
 End Sub
 
