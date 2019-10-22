@@ -39,7 +39,7 @@ Public Sub TestInitialize()
     Dim TestWS As Worksheet
     Set TestWS = WorksheetFromCodeName(TestName)
     If TestWS Is Nothing Then
-        ThisWorkbook.Worksheets.Add After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.count)
+        ThisWorkbook.Worksheets.Add After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count)
         Set TestWS = ThisWorkbook.ActiveSheet
         ThisWorkbook.VBProject.VBComponents(TestWS.CodeName).Name = TestName
     Else
@@ -126,7 +126,7 @@ Public Sub Test_Uninit()
     Assert.AreEqual ExpectedError, Err.Number, "Routine ""ShiftRight"" failed uninitialized check."
     Err.Clear
 
-    TestColumn.SetColumn 1
+    TestColumn.SetIndex 1
     Assert.AreEqual ExpectedError, Err.Number, "Routine ""SetColumn"" failed uninitialized check."
     Err.Clear
 
@@ -188,7 +188,7 @@ Public Sub Test_Names()
     Assert.AreEqual TestWS.Columns(1).Address(ColumnAbsolute:=False), TestColumn.Name & ":" & TestColumn.Name, "Column naming broken on Column: " & TestColumn.Name & "(" & TestColumn.Number & ")"
     Assert.AreEqual 1&, TestColumn.Number, "Column numbering broken on Column: " & TestColumn.Name & "(" & TestColumn.Number & ")"
 
-    For Column = 2 To ActiveSheet.Columns.count
+    For Column = 2 To ActiveSheet.Columns.Count
         TestColumn.ShiftRight
         Assert.AreEqual TestWS.Columns(Column).Address(ColumnAbsolute:=False), TestColumn.Name & ":" & TestColumn.Name, "Column naming broken on Column: " & TestColumn.Name & "(" & TestColumn.Number & ")"
         Assert.AreEqual Column, TestColumn.Number, "Column numbering broken on Column: " & TestColumn.Name & "(" & TestColumn.Number & ")"
@@ -359,8 +359,8 @@ Public Sub Test_Range_Addr()
     Dim raRef As String
     Dim aaRef As String
 
-    rowStart = Int(ActiveSheet.rows.count * Rnd + 1)
-    rowEnd = Int((ActiveSheet.rows.count - rowStart + 1) * Rnd + rowStart)
+    rowStart = Int(ActiveSheet.Rows.Count * Rnd + 1)
+    rowEnd = Int((ActiveSheet.Rows.Count - rowStart + 1) * Rnd + rowStart)
     rrRef = "A" & rowStart & ":A" & rowEnd
     arRef = "$A" & rowStart & ":$A" & rowEnd
     raRef = "A$" & rowStart & ":A$" & rowEnd
@@ -444,7 +444,7 @@ Public Sub Test_Range_Same_StartEnd()
     Dim raRef As String
     Dim aaRef As String
 
-    Row = Int(ActiveSheet.rows.count * Rnd + 1)
+    Row = Int(ActiveSheet.Rows.Count * Rnd + 1)
     rrRef = "A" & Row
     arRef = "$A" & Row
     raRef = "A$" & Row
@@ -808,7 +808,7 @@ Public Sub Test_Range_Cell()
 
     'Assert2:
     On Error GoTo TestError
-    Set rngOutput = TestColumn.Range(1, ActiveSheet.rows.count + 1)
+    Set rngOutput = TestColumn.Range(1, ActiveSheet.Rows.Count + 1)
     Assert.Fail "Row Range out of bounds succeeding."
 
     Exit Sub
