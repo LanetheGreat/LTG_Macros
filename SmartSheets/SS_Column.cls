@@ -11,11 +11,13 @@ Option Explicit
 
 '@Folder("SmartSheets")
 
+'@Ignore ConstantNotUsed
 Const Version As String = "1.0.0"
 
 Private Const ClassName As String = "SS_Column"
-Private Const DescUninit As String = ClassName & " object not initialized."
-Private Const DescInit As String = ClassName & " has already been initialized."
+
+Private Const descSSCE_ObjUninit As String = ClassName & " object not initialized."
+Private Const descSSCE_ObjInit As String = ClassName & " has already been initialized."
 
 Private ParentSheet As Worksheet
 Private ColumnName As String
@@ -72,14 +74,14 @@ Private Sub CheckInit(Optional ByVal Src As String)
             Src = ClassName & "." & Src
         End If
 
-        Err.Raise ERROR_SSC.SSCE_ObjUninit, Src, DescUninit
+        Err.Raise ERROR_SSC.SSCE_ObjUninit, Src, descSSCE_ObjUninit
     End If
 
 End Sub
 
 Private Sub CheckRow(ByVal Row As Long, Optional ByVal Src As String)
 
-    If Row < 1 Or Row > ParentSheet.rows.count Then
+    If Row < 1 Or Row > ParentSheet.Rows.Count Then
         If Src = vbNullString Then
             Src = ClassName
         Else
@@ -183,7 +185,8 @@ End Property
 ' Property: LastRow (Read only)
 Public Property Get LastRow() As Long
     CheckInit "LastRow"
-    With ParentSheet.Cells(ParentSheet.rows.count, ColumnNumber)
+
+    With ParentSheet.Cells(ParentSheet.Rows.Count, ColumnNumber)
         If Not IsEmpty(.Value) Then
             LastRow = .Row
         Else
@@ -198,7 +201,7 @@ End Property
 Public Sub Init(ByVal Parent As Variant, ByVal Column As Variant)
 
     If Not ParentSheet Is Nothing Then _
-        Err.Raise ERROR_SSC.SSCE_ObjInit, ClassName & ".Init", DescInit
+        Err.Raise ERROR_SSC.SSCE_ObjInit, ClassName & ".Init", descSSCE_ObjInit
 
     If TypeOf Parent Is Workbook Then
         Set Parent = Parent.ActiveSheet
@@ -230,7 +233,7 @@ Public Sub ShiftRight()
 
     CheckInit "ShiftRight"
 
-    If ColumnNumber = ParentSheet.Columns.count Then _
+    If ColumnNumber = ParentSheet.Columns.Count Then _
         Err.Raise 9, ClassName & ".ShiftRight"
 
     ColumnNumber = ColumnNumber + 1
@@ -238,11 +241,12 @@ Public Sub ShiftRight()
 
 End Sub
 
-Public Sub SetColumn(ByVal Column As Variant)
+Public Sub SetIndex(ByVal ColumnIndex As Variant)
 
-    CheckInit "SetColumn"
-    CheckColumn Column, "SetColumn"
-    ColumnNumber = ParentSheet.Columns(Column).Column
+    CheckInit "SetIndex"
+    CheckColumn Column, "SetIndex"
+
+    ColumnNumber = ParentSheet.Columns(ColumnIndex).Column
     ColumnName = CalculateName(ColumnNumber)
 
 End Sub
@@ -272,7 +276,7 @@ Public Function RowAddress( _
     Optional ByVal IncludeWB As Boolean = False _
 ) As String
 
-    CheckInit
+    CheckInit "RowAddress"
     CheckRow Row, "RowAddress"
     RowAddress = ExternalRef(IncludeWS, IncludeWB)
 
@@ -295,7 +299,7 @@ Public Function RangeAddress( _
     Optional ByVal IncludeWB As Boolean = False _
 ) As String
 
-    CheckInit
+    CheckInit "RangeAddress"
     CheckRow StartRow, "RangeAddress"
     CheckRow EndRow, "RangeAddress"
     RangeAddress = ExternalRef(IncludeWS, IncludeWB)
@@ -363,7 +367,7 @@ End Function
 
 Public Function Cell(ByVal Row As Long) As Range
 
-    CheckInit
+    CheckInit "Cell"
     CheckRow Row, "Cell"
 
     Set Cell = ParentSheet.Cells(Row, ColumnNumber)
@@ -376,20 +380,21 @@ Public Function Range(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow
     CheckRow StartRow, "Range"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.rows.count
-    CheckRow EndRow
+        EndRow = ParentSheet.UsedRange.Rows.Count
+    CheckRow EndRow, "Range"
 
     Set Range = ParentSheet.Range(ColumnName & StartRow & ":" & ColumnName & EndRow)
 
 End Function
 
+'TODO: Check that StartRow > Endrow (Also Unit Test)
 Public Sub ClearContents(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow As Variant)
 
     CheckInit "ClearContents"
-    CheckRow StartRow, "StartRow"
+    CheckRow StartRow, "ClearContents"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.rows.count
+        EndRow = ParentSheet.UsedRange.Rows.Count
     CheckRow EndRow, "ClearContents"
 
     With ParentSheet
@@ -398,32 +403,33 @@ Public Sub ClearContents(Optional ByVal StartRow As Long = 2, Optional ByVal End
 
 End Sub
 
+'TODO: Check that StartRow > Endrow (Also Unit Test)
 Public Sub FillDown(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow As Variant)
 
     CheckInit "FillDown"
     CheckRow StartRow, "FillDown"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.rows.count
-    CheckRow EndRow
+        EndRow = ParentSheet.UsedRange.Rows.Count
+    CheckRow EndRow, "FillDown"
 
     With ParentSheet
-        .Range(.Cells(StartRow, ColumnName), .Cells(EndRow, ColumnName)).FillDown
+        .Range(.Cells(StartRow, ColumnNumber), .Cells(EndRow, ColumnNumber)).FillDown
     End With
 
 End Sub
 
 Public Sub FillUp(Optional ByVal StartRow As Long = 2, Optional ByVal EndRow As Variant)
 
-    CheckInit "FillDown"
-    CheckRow StartRow, "FillDown"
+    CheckInit "FillUp"
+    CheckRow StartRow, "FillUp"
 
     If IsMissing(EndRow) Then _
-        EndRow = ParentSheet.UsedRange.rows.count
-    CheckRow EndRow
+        EndRow = ParentSheet.UsedRange.Rows.Count
+    CheckRow EndRow, "FillUp"
 
     With ParentSheet
-        .Range(.Cells(StartRow, ColumnName), .Cells(EndRow, ColumnName)).FillUp
+        .Range(.Cells(StartRow, ColumnNumber), .Cells(EndRow, ColumnNumber)).FillUp
     End With
 
 End Sub
